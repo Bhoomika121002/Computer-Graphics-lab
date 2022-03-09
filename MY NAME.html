@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<!--
+	----------------------------------------------------------------------------------------------------------------------------------------------------- 
+	Version	| Date 			| Author							| Description
+	-----------------------------------------------------------------------------------------------------------------------------------------------------
+	001		| 18 Jan 2022	| Bhupendra Singh, UPES Dehradun	| WebGL is wrapped inside the draw() method. The method can be used to display 2D points.
+			|				|									| A part of Computer Graphics Lab work.
+	-----------------------------------------------------------------------------------------------------------------------------------------------------
+-->
+<html>
+	<head>
+		<title>CG Lab - "Type your sap id here".</title>    
+	</head>
+	<body>
+		<canvas id="canvas"  width="1200" height="600">
+			Your browser does not support HTML5
+		</canvas>
+		<br/>
+		<script>
+		//////////////////////////////// YOUR CODE SHOULD START AFTER THIS LINE //////////////////////
+			var SCREEN_SIZE = 200;		// The size of the coordinate axis, X, Y = [0 SCREEN_SIZE]
+			var verticesData = [];		// The array holds the x,y of all the data points to be drawn on the screen.
+			verticesData = [5,30,5,40,5,50,5,60,5,70,5,80,8,30,12,30,8,80,12,80,12,80,12,70,12,60,8,55,12,50,12,40,12,30,5,55,10,58,10,52,5,75,5,65,5,45,5,35,12,75,12,65,12,45,12,35,10,30,10,80,
+					15,30,15,40,15,50,15,60,15,70,15,80,15,75,15,65,15,45,15,35,15,55,17,55,19,55,21,55,22,55,22,50,22,45,22,40,22,35,22,30,
+					25,30,25,35,25,40,25,45,25,50,25,55,27,55,29,55,31,55,31,50,31,45,31,40,31,35,31,30,27,30,29,30,31,30,
+					34,30,34,35,34,40,34,45,34,50,34,55,36,55,38,55,40,55,36,30,38,30,40,30,40,35,40,40,40,45,40,50,40,55,
+					44,30,44,35,44,40,44,45,44,50,44,55,46,55,48,55,50,55,52,55,48,50,48,45,48,40,48,35,48,30,52,30,52,35,52,40,52,45,52,50,52,55,
+					55,30,55,35,55,40,55,45,55,50,55,55,55,65,
+					58,30,58,35,58,40,58,45,58,50,58,55,58,60,58,65,58,70,58,75,58,80,60,55,62,65,64,75,62,45,64,35,66,30,66,80,61,50,63,40,61,60,63,70,
+					69,30,69,35,69,40,69,45,69,50,69,55,71,55,73,55,75,55,75,50,75,45,75,40,75,35,75,30,71,30,73,30,75,30,77,30,79,30,
+					85,30,85,35,85,40,85,45,85,50,85,55,85,60,85,65,85,70,85,75,85,80,87,80,89,80,91,80,93,80,87,30,89,30,91,30,93,30,
+					96,30,96,35,96,40,96,45,96,50,96,55,96,60,96,65,96,70,96,75,96,80,98,55,100,55,102,55,104,55,104,50,104,45,104,40,104,35,104,30,
+					107,30,107,35,107,40,107,45,107,50,107,55,109,55,111,55,113,55,113,50,113,45,113,40,113,35,113,30,115,30,117,30,109,30,111,30,
+					120,30,120,35,120,40,120,45,120,50,120,55,122,30,124,30,126,30,126,35,126,40,126,45,126,50,126,55,
+					135,30,135,35,135,40,135,45,135,50,135,55,135,60,135,65,135,70,135,75,135,80,133,55,131,55,129,55,129,50,129,45,129,40,129,35,129,30,131,30,133,30,137,30,139,30,
+					142,30,142,35,142,40,142,45,142,50,142,55,142,60,142,65,142,70,142,75,142,80,144,55,146,55,148,55,150,55,150,50,150,45,150,40,150,35,150,30,
+					153,30,153,35,153,40,153,45,153,50,153,55,155,55,157,55,159,55,155,30,157,30,159,30,159,35,159,40,159,45,159,50,161,30,163,30,
+					164,55,165,53,166,50,166,45,166,40,166,35,166,30,167,53,168,55,170,55,172,55,
+					175,55,176,50,177,45,178,40,179,35,180,30,181,35,182,40,183,45,184,50,185,55,179,25,178,20,177,15,176,10,];
+
+					draw(verticesData);			// This method draws all the points provided in the argument array.
+		//////////////////////////////// YOUR CODE SHOULD END BEFORE THIS LINE //////////////////////
+
+			function XY_mapping(){
+				let inputVertices = arguments[0];			
+				var SCREEN_SIZE = arguments[1];
+				for(var i = 0; i < inputVertices.length; i++)
+				{
+					inputVertices[i] = -1 + inputVertices[i]/(SCREEN_SIZE/2);
+					inputVertices[i] = inputVertices[i].toFixed(2);
+				}
+				return inputVertices;
+			}
+
+			//////////////////////////////// WebGL code starts from here. Don't touch uncless you have understanding of it.//////////////////////
+			function draw () {		
+				var verticesData = arguments[0];	
+				verticesDataArrayJS = XY_mapping(verticesData, SCREEN_SIZE);	
+
+				var gl, shaderProgram;
+
+				gl = initializeWebGL(gl);
+
+				//Step 1 (Set background color): First specify the color with the help of Quadlet(R,G,B,Alpha) and the clear the buffer related to background.
+				gl.clearColor(0, 0, 0, 1.0);	
+				gl.clear(gl.COLOR_BUFFER_BIT);
+				//Note: The default background color in WebGl is white.
+
+				//Step 4 (Create GPU meomry buffer): In the GPU for holding vertices data of type ARRAY_BUFFER.
+				var rectVBO = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, rectVBO);
+
+				//Step 5 (Pass the vertices data to the buffer created previously).
+				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verticesDataArrayJS), gl.STATIC_DRAW);
+
+				//Seven Steps Shader side coding in JS to get the shader program.
+				shaderProgram = getShaderProgram(gl);
+
+				//Step 14 (Use the shader program):
+				gl.useProgram(shaderProgram);
+
+				//Step 15 (Get access to GPU's geometry coordinates): Get the pointer to the geometry coordinates defined in vertex shader through the shader program.
+				var coordinatesInfoPoniter = gl.getAttribLocation(shaderProgram, 'geometryCoordinatesGPU');
+				
+				//Step 16 (Enable Vertex Attribute Array): It enables the pointer defined in Step 8 to access the vertex buffered data.
+				gl.enableVertexAttribArray(coordinatesInfoPoniter);
+
+				//Step 17 (Buffer data definition): Define how the data on the GPU buffer is arranged. SO that the pointer defined in Step 8 can access the data from the buffer.
+				gl.vertexAttribPointer(
+					coordinatesInfoPoniter, // Vertices pointer
+					2, 						// Number of elements per attribute
+					gl.FLOAT, 				// Type of elements
+					gl.FALSE,				// Data Normalization
+					2 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
+					0 						// Offset from the beginning of a single vertex to this attribute
+				);
+				
+				//Step 18 (Draw the geometry): Issue the draw command to generate the geometry as defined by the indices and the type of primitive to create.
+				gl.drawArrays(gl.POINTS, 0, verticesDataArrayJS.length);
+			};
+
+			function initializeWebGL(gl)
+			{
+				var canvas = document.getElementById('canvas');
+
+				canvas.width = window.innerWidth;;
+				canvas.height = window.innerHeight;;
+
+				gl = canvas.getContext('webgl');
+
+				if (!gl) {
+					console.log('WebGL not supported, falling back on experimental-webgl');
+					gl = canvas.getContext('experimental-webgl');
+				}
+
+				if (!gl) {
+					alert('Your browser does not support WebGL');
+					return;
+				}
+				return gl;
+			}
+
+			//Seven steps of Shader side coding
+			function getShaderProgram(gl)
+			{
+				//Step 7 (Define vertex shader text): Define the code of the vertex shader in the form of JS text.
+				var vertexShaderText = 
+				' attribute vec2 geometryCoordinatesGPU; ' +
+				' void main() ' +
+				' { ' +
+				'		gl_Position = vec4(geometryCoordinatesGPU, 1.0, 1.0); ' +
+				'		gl_PointSize = 10.0;	'+
+				' } ';
+
+				//Step 8 (Create actual vertex shader): Create the actual vertex shader with the text defined in Step 1.
+				var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+				gl.shaderSource(vertexShader, vertexShaderText);
+
+				//Step 9 (Compile vertex shader):
+				gl.compileShader(vertexShader);
+				if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+					console.error('ERROR compiling vertex shader!', gl.getShaderInfoLog(vertexShader));
+					return;
+				}
+
+				//Step 10: Repeat the above 3 steps for fragment shader.
+				var fragmentShaderText =
+				' void main() ' +
+				' { ' +
+				'  		gl_FragColor = vec4(1, 1, 1, 1); ' +	
+				' } ';
+
+				var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+				gl.shaderSource(fragmentShader, fragmentShaderText);
+
+				gl.compileShader(fragmentShader);
+				if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+					console.error('ERROR compiling fragment shader!', gl.getShaderInfoLog(fragmentShader));
+					return;
+				}
+
+				//Step 11 (Shader program): With the compiled vertex and fragment shader, create the shader program.
+				var shaderProgram = gl.createProgram();
+				gl.attachShader(shaderProgram, vertexShader);
+				gl.attachShader(shaderProgram, fragmentShader);
+
+				//Step 12 (Link shader program): 
+				gl.linkProgram(shaderProgram);
+				if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+					console.error('ERROR linking program!', gl.getProgramInfoLog(shaderProgram));
+					return;
+				}
+
+				//Step 13 (Validate Shader program): Checks if the shader program has been succesfully linked and can be used further.
+				gl.validateProgram(shaderProgram);
+				if (!gl.getProgramParameter(shaderProgram, gl.VALIDATE_STATUS)) {
+					console.error('ERROR validating program!', gl.getProgramInfoLog(shaderProgram));
+					return;
+				}
+				return shaderProgram;
+			}
+		</script>
+	</body>
+</html>
